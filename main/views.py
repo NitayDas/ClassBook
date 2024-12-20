@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, get_user_model
 from django.contrib import messages
 from .models import *
 from django.contrib.auth.hashers import make_password
@@ -8,25 +8,18 @@ from django.contrib.auth.hashers import make_password
 def home_view(request):
     return render(request, 'auth/home.html')
 
-# User Registration View
-from django.shortcuts import render, redirect
-from django.contrib.auth import get_user_model
-from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from .models import Preference, StudyGroup
 
 def register_view(request):
     preference_choices = dict(Preference._meta.get_field('name').choices)
     group_choices = dict(StudyGroup._meta.get_field('name').choices)
-
-    selected_groups = []
+    
     selected_preferences = []
-
+    
     if request.method == 'POST':
-        groups_names = request.POST.getlist('groups')
+        group = request.POST.get('group')
         preferences_names = request.POST.getlist('preferences')
+        print(preferences_names, group)
 
-        selected_groups = groups_names  
         selected_preferences = preferences_names 
 
         # Ensure that the password fields match
@@ -38,7 +31,6 @@ def register_view(request):
             return render(request, 'auth/register.html', {
                 'group_choices': group_choices,
                 'preference_choices': preference_choices,
-                'selected_groups': selected_groups,
                 'selected_preferences': selected_preferences
             })
 
@@ -51,28 +43,21 @@ def register_view(request):
         user = get_user_model()(username=username, email=email)
         user.set_password(password)
         user.save()
-        
-        user.role = role
-        user.save()
-
+        customuser = CustomUser(username=username, email=email)
+        customuser.role = role
+        customuser.save()
 
         if role == 'student':
-            groups = StudyGroup.objects.filter(name__in=groups_names)
-            preferences = Preference.objects.filter(name__in=preferences_names)
+            customuser.groups = group
+            customuser.preferences = str(preferences_names)
+            customuser.save()
 
-            # user.groups.set(groups)
-            # user.preferences.set(preferences)
-
-        # Optionally, send an email or perform any additional logic here
-
-        # Redirect to login page after successful registration
         messages.success(request, "Account created successfully! Please log in.")
         return redirect('login')
 
     return render(request, 'auth/register.html', {
         'group_choices': group_choices,
         'preference_choices': preference_choices,
-        'selected_groups': selected_groups,
         'selected_preferences': selected_preferences
     })
 

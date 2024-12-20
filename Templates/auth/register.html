@@ -82,17 +82,16 @@
       <div id="groups-container" style="display:none;">
         <label for="groups" class="block text-sm font-semibold text-gray-700">Groups</label>
 
-        {% for key, value in group_choices.items %}
-            <div>
-                <input 
-                    type="checkbox" 
-                    name="groups" 
-                    value="{{ key }}"
-                    {% if key in selected_groups %}checked{% endif %}
-                >
-                <label for="groups">{{ value }}</label>
-            </div>
+        <select 
+        id="group" 
+        name="group" 
+        class="mt-1 p-2 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+        required
+      >
+      {% for key, value in group_choices.items %}
+        <option value="{{ key }}">{{ value }}</option>
         {% endfor %}
+      </select>
       </div>
 
       <!-- Preferences (Visible if Role is Student) -->

@@ -55,8 +55,10 @@ class CustomUser(AbstractUser):
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     # studygroup = models.CharField(max_length=10, choices=GROUP_CHOICE, default='science')
-    groups = models.ManyToManyField(StudyGroup, blank=True)
-    preferences = models.ManyToManyField(Preference, blank=True)
+    # groups = models.ManyToManyField(StudyGroup, blank=True)
+    # preferences = models.ManyToManyField(Preference, blank=True)
+    preferences = models.TextField(max_length=2000, blank=True, null =True)
+    groups = models.CharField(max_length=20,choices=GROUP_CHOICE, default='science', blank=True, null =True)
 
     def __str__(self):
         return self.username
