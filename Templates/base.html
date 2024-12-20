@@ -19,9 +19,16 @@
         <a href="#" class="text-white font-semibold hover:text-gray-300">About Us</a>
       </div>
      </div>
-      <div class="hidden md:flex space-x-4">
-        <a href="register/" class="text-white font-semibold hover:text-gray-300 mr-8">Register</a>
-      </div>
+
+     <div class="hidden md:flex space-x-4">
+      {% if user.is_authenticated %}
+        <span class="text-white font-semibold">Welcome, {{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="text-white font-semibold hover:text-gray-300">Logout</a>
+      {% else %}
+        <a href="{% url 'register' %}" class="text-white font-semibold hover:text-gray-300 mr-8">Register</a>
+      {% endif %}
+    </div>
+    
       <button class="md:hidden text-white focus:outline-none">
         <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
