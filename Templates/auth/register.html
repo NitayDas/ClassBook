@@ -1,14 +1,168 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h1>Register</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100 py-6">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Register</h1>
+
+    {% if messages %}
+    <ul class="mb-4">
+      {% for message in messages %}
+      <li class="text-center text-red-500">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" action="{% url 'register' %}" class="space-y-4">
+      {% csrf_token %}
+
+      <!-- Username -->
+      <div>
+        <label for="username" class="block text-sm font-semibold text-gray-700">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          class="mt-1 p-2 block w-full border-2 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" 
+          required
+        >
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="mt-1 p-2 block w-full border-2 border-gray-300 rounded-md shadow-sm  focus:border-green-500 sm:text-sm" 
+          required
+        >
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="mt-1 p-2 block w-full border-2 border-gray-300 rounded-md shadow-sm  focus:border-green-500 sm:text-sm" 
+          required
+        >
+      </div>
+
+      <!-- Confirm Password -->
+      <div>
+        <label for="confirm_password" class="block text-sm font-semibold text-gray-700">Confirm Password</label>
+        <input 
+          type="password" 
+          id="confirm_password" 
+          name="confirm_password" 
+          class="mt-1 p-2 block w-full border-2 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" 
+          required
+        >
+      </div>
+
+      <!-- Role -->
+      <div>
+        <label for="role" class="block text-sm font-semibold text-gray-700">Role</label>
+        <select 
+          id="role" 
+          name="role" 
+          class="mt-1 p-2 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+          required
+        >
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
+
+      <!-- Groups (Visible if Role is Student) -->
+      <div id="groups-container" style="display:none;">
+        <label for="groups" class="block text-sm font-semibold text-gray-700">Groups</label>
+
+        {% for key, value in group_choices.items %}
+            <div>
+                <input 
+                    type="checkbox" 
+                    name="groups" 
+                    value="{{ key }}"
+                    {% if key in selected_groups %}checked{% endif %}
+                >
+                <label for="groups">{{ value }}</label>
+            </div>
+        {% endfor %}
+      </div>
+
+      <!-- Preferences (Visible if Role is Student) -->
+      <div id="preferences-container" style="display:none;">
+        <label for="preferences" class="block text-sm font-semibold text-gray-700">Preferences</label>
+
+        {% for key, value in preference_choices.items %}
+            <div>
+                <input 
+                    type="checkbox" 
+                    name="preferences" 
+                    value="{{ key }}"
+                    {% if key in selected_groups %}checked{% endif %}
+                >
+                <label for="preferences">{{ value }}</label>
+            </div>
+        {% endfor %}
+        
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="w-full font-semibold bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-green-400"
+      >
+        Register
+      </button>
     </form>
-</body>
-</html>
+
+    <p class="text-left mt-4 font-semibold">
+        Already have an account? 
+        <a href="{% url 'login' %}" class="text-blue-500 hover:text-blue-700">Sign in</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  // Show/hide Groups and Preferences fields based on Role on page load
+  document.addEventListener("DOMContentLoaded", function() {
+    var role = document.getElementById('role').value;
+    var groupsContainer = document.getElementById('groups-container');
+    var preferencesContainer = document.getElementById('preferences-container');
+
+    if (role === 'student') {
+      groupsContainer.style.display = 'block';
+      preferencesContainer.style.display = 'block';
+    } else {
+      groupsContainer.style.display = 'none';
+      preferencesContainer.style.display = 'none';
+    }
+  });
+
+  // Show/hide Groups and Preferences fields based on Role change
+  document.getElementById('role').addEventListener('change', function() {
+    var role = this.value;
+    var groupsContainer = document.getElementById('groups-container');
+    var preferencesContainer = document.getElementById('preferences-container');
+
+    if (role === 'student') {
+      groupsContainer.style.display = 'block';
+      preferencesContainer.style.display = 'block';
+    } else {
+      groupsContainer.style.display = 'none';
+      preferencesContainer.style.display = 'none';
+    }
+  });
+</script>
+
+{% comment %} {% block extra_js %}
+  <script src="{% static 'js/register.js' %}"></script>
+{% endblock %} {% endcomment %}
+
+{% endblock %}

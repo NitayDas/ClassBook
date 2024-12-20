@@ -1,20 +1,41 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .forms import CustomUserCreationForm
+from .models import *
+from django.contrib.auth.hashers import make_password
+
+
+def home_view(request):
+    return render(request, 'auth/home.html')
 
 # User Registration View
 def register_view(request):
+    preference_choices = dict(Preference._meta.get_field('name').choices)
+    group_choices = dict(StudyGroup._meta.get_field('name').choices)
+
+    selected_groups = []
+    selected_preferences = []
+
+    # If the user is a student and already has selected groups or preferences
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # Log the user in after registration
-            messages.success(request, 'Registration successful!')
-            return redirect('dashboard')  # Redirect to dashboard
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'auth/register.html', {'form': form})
+        groups_names = request.POST.getlist('groups')
+        preferences_names = request.POST.getlist('preferences')
+
+        selected_groups = groups_names  # Store selected groups
+        selected_preferences = preferences_names  # Store selected preferences
+        
+        print(selected_preferences)
+
+        # Perform your user registration logic here...
+
+    return render(request, 'auth/register.html', {
+        'group_choices': group_choices,
+        'preference_choices': preference_choices,
+        'selected_groups': selected_groups,
+        'selected_preferences': selected_preferences
+    })
+
+
 
 # User Login View
 def login_view(request):
@@ -24,7 +45,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return redirect('dashboard')  # Redirect to dashboard
+            messages.success(request, f'logging successful! Welcome, {username}!')
+            return redirect('home') 
         else:
             messages.error(request, 'Invalid username or password.')
     return render(request, 'auth/login.html')
